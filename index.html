@@ -7,376 +7,713 @@
 <title>Freezing Variables</title>
 <meta name="description" content="Turn open source variable fonts into static fonts in your browser.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23ffd93d'/%3E%3Crect x='2' y='2' width='28' height='28' fill='none' stroke='%23111' stroke-width='4'/%3E%3C/svg%3E">
-<script>
-/* Flatten console arguments to text so hosts that forward them can't choke on
-   objects, and hold back the converter's startup chatter. */
-(function(){
-  var st=window.__fv={quiet:true,held:[]};
-  function plain(x){if(x==null||typeof x==='string'||typeof x==='number'||typeof x==='boolean')return x;try{return x instanceof Error?x.name+': '+x.message:String(x)}catch(e){return '[unprintable]'}}
-  ['log','info','warn','error','debug'].forEach(function(k){var o=console[k];if(!o)return;console[k]=function(){var a=[].slice.call(arguments).map(plain);if(st.quiet){st.held.push(a.join(' '));return}return o.apply(console,a)}});
-})();
-</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#fff4dc;--ink:#111;--paper:#fff;--yellow:#ffd93d;--pink:#ff7eb6;--blue:#8ec9ff;--green:#7be08a;--mint:#d3f5d6;--red:#c4001f;--focus:#2b59ff;
-  --ui:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif}
-*{box-sizing:border-box}
-html{background:var(--bg)}
-body{margin:0;font:450 16px/1.5 var(--ui);color:var(--ink)}
-.wrap{max-width:900px;margin:0 auto;padding:0 24px}
+:root {
+  --bg: #fff4dc;
+  --paper: #ffffff;
+  --ink: #111111;
+  --muted: #5c5850;
+  --yellow: #ffd93d;
+  --pink: #ff7eb6;
+  --blue: #8ec9ff;
+  --green: #7be08a;
+  --mint: #d3f5d6;
+  --red: #c4001f;
+  --display: "Bricolage Grotesque", sans-serif;
+  --sans: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: "Space Mono", monospace;
+}
 
-@keyframes wave{0%,100%{font-weight:250;font-stretch:78%}50%{font-weight:800;font-stretch:100%}}
-@keyframes breathe{0%,100%{font-weight:500;font-stretch:90%}50%{font-weight:800;font-stretch:100%}}
-@keyframes settle{from{font-weight:850;font-stretch:80%}to{font-weight:700;font-stretch:100%}}
-@keyframes sweep{from{transform:translateX(-100%)}to{transform:translateX(400%)}}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; background: var(--bg); color: var(--ink); font: 500 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
+body { display: flex; flex-direction: column; }
+.wrap { width: 100%; max-width: 860px; margin: 0 auto; padding: 0 24px; flex: 1; display: flex; flex-direction: column; }
 
-header{padding:32px 0 0}
-.logo{position:relative;display:inline-block;padding:7px 16px;font-size:22px;line-height:1.3;letter-spacing:-.01em;white-space:nowrap;
-  background:var(--yellow);border:3px solid var(--ink);border-radius:10px;box-shadow:4px 4px 0 var(--ink);transform:rotate(-1.5deg)}
-.logo .sizer{display:block;visibility:hidden;font-weight:800;font-stretch:100%}
-.logo .live{position:absolute;left:16px;top:7px}
-.logo i{font-style:normal;display:inline-block;white-space:pre;font-weight:250;font-stretch:78%;animation:wave 3.6s ease-in-out infinite;animation-delay:calc(var(--i)*110ms - 3.6s)}
+@keyframes wave {
+  0%, 100% { font-weight: 250; font-stretch: 78%; }
+  50% { font-weight: 800; font-stretch: 100%; }
+}
 
-h1{font-size:clamp(40px,7vw,76px);line-height:1.02;letter-spacing:-.035em;font-weight:700;margin:64px 0 20px;max-width:11em;animation:settle 1.6s cubic-bezier(.25,.8,.25,1) both}
-h1 em{font-style:normal;display:inline-block;background:var(--pink);border:3px solid var(--ink);border-radius:12px;box-shadow:5px 5px 0 var(--ink);padding:0 .14em;transform:rotate(-2deg)}
-.lede{max-width:38ch;margin:0 0 40px;font-size:20px}
+header { padding: 40px 0 16px; text-align: center; }
+.logo {
+  display: inline-block;
+  padding: 7px 16px;
+  font: 700 21px/1.25 var(--display);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  background: var(--yellow);
+  border: 2.5px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.logo i {
+  font-style: normal;
+  display: inline-block;
+  white-space: pre;
+  font-weight: 250;
+  font-stretch: 78%;
+  animation: wave 3.6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 105ms - 3.6s);
+}
 
-.panel{background:var(--paper);border:3px solid var(--ink);border-radius:14px;box-shadow:6px 6px 0 var(--ink);padding:24px}
+#home { margin: auto 0; padding: 24px 0 56px; text-align: center; }
+h1 {
+  font: 700 clamp(36px, 6vw, 60px)/1.05 var(--display);
+  letter-spacing: -0.03em;
+  margin: 0 auto 16px;
+  max-width: 13em;
+}
+h1 em {
+  font-style: normal;
+  display: inline-block;
+  background: var(--pink);
+  border: 2.5px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  padding: 0 0.16em;
+  transform: rotate(-1.5deg);
+}
+.lede {
+  margin: 0 auto 36px;
+  max-width: 42ch;
+  font-size: 17px;
+  color: var(--muted);
+}
 
-.drop{position:relative;display:block;overflow:hidden;background:var(--blue);border:3px solid var(--ink);border-radius:14px;box-shadow:6px 6px 0 var(--ink);padding:52px 32px 56px;cursor:pointer}
-.drop::after{content:"";position:absolute;left:0;bottom:0;height:8px;width:25%;background:var(--ink);animation:sweep 3.2s ease-in-out infinite}
-.drop:active{transform:translate(4px,4px);box-shadow:2px 2px 0 var(--ink)}
-.drop.over{background:var(--yellow)}
-.drop.wait{cursor:progress}
-.drop b{display:block;font-size:clamp(22px,3.6vw,34px);letter-spacing:-.02em;line-height:1.15;animation:breathe 6s ease-in-out infinite}
-.drop span{display:block;margin-top:6px;font-size:15px;font-weight:550}
-.drop input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
-#msg{margin:18px 0 0;min-height:24px;font-size:15px;font-weight:600}
-#msg.err{color:var(--red)}
+.drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--blue);
+  border: 2.5px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  padding: 48px 28px;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s, background-color 0.15s;
+}
+.drop:hover, .drop.over { background: var(--yellow); }
+.drop:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--ink); }
+.drop.wait { cursor: progress; opacity: 0.7; }
+.drop b { font: 700 clamp(20px, 3vw, 26px)/1.2 var(--display); letter-spacing: -0.02em; }
+.drop span { margin-top: 8px; font: 400 12px/1 var(--mono); }
+.drop input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
 
-h2{display:inline-block;margin:0 0 14px;padding:2px 10px;background:var(--ink);color:var(--bg);border-radius:6px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
-.hint{margin:0 0 14px;font-size:14px;font-weight:500}
+#msg { margin: 18px 0 0; min-height: 22px; text-align: center; font: 600 14px/1.4 var(--sans); }
+#msg.err { color: var(--red); }
 
-#work{display:none;margin-top:64px}
-#work.on{display:block}
-#work.on h2{animation:settle 1.2s cubic-bezier(.25,.8,.25,1) both}
-.meta{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
-.meta b{font-size:26px;font-weight:700;letter-spacing:-.02em}
-#sample{margin-top:20px;font-family:"Upload",var(--ui);font-size:clamp(40px,8vw,88px);line-height:1.08;letter-spacing:-.01em;outline:0;word-break:break-word}
-#sample:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+#work { display: none; margin: 24px 0 56px; }
+#work.on { display: block; }
 
-.license{margin-top:36px;background:var(--yellow)}
-.license dl{margin:0 0 14px;display:grid;grid-template-columns:90px 1fr;gap:6px 16px;font-size:14px}
-.license dt{font-weight:700}
-.license dd{margin:0;overflow-wrap:anywhere}
-.license a{color:var(--ink);font-weight:650}
-.warn{background:var(--paper);border:3px solid var(--ink);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:550;margin:0 0 12px}
-.agree{display:flex;gap:12px;align-items:center;font-size:15px;font-weight:600;margin:0}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.topbar b { font: 700 28px/1.1 var(--display); letter-spacing: -0.02em; }
 
-.cols{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:32px;margin-top:36px;align-items:start}
-@media (max-width:820px){.cols{grid-template-columns:1fr}}
-.axis{padding:10px 0 4px}
-.axis .top{display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:650}
-.axis .top small{margin-left:6px;font-weight:450;opacity:.6}
-.axis input[type=number]{width:84px;font:inherit;font-size:15px;font-weight:650;text-align:right;border:3px solid var(--ink);border-radius:8px;background:var(--paper);color:var(--ink);padding:3px 8px}
-input[type=range]{display:block;width:100%;margin:8px 0 0;accent-color:var(--ink)}
-.save{display:flex;gap:10px;margin-top:18px}
-.save input{flex:1;min-width:0;font:inherit;font-size:15px;font-weight:550;border:3px solid var(--ink);border-radius:10px;background:var(--paper);color:var(--ink);padding:8px 12px}
-.save input::placeholder{color:#555}
-.btn{font:inherit;font-size:15px;font-weight:700;color:var(--ink);background:var(--paper);border:3px solid var(--ink);border-radius:10px;box-shadow:3px 3px 0 var(--ink);padding:7px 16px;cursor:pointer}
-.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
-.btn.main{background:var(--green);font-size:17px;padding:10px 26px;box-shadow:4px 4px 0 var(--ink)}
-.btn.main:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--ink)}
-.btn:disabled{opacity:.4;box-shadow:none;transform:none;cursor:not-allowed}
-:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.panel {
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  padding: 22px;
+}
 
-input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:none;display:grid;place-content:center;width:24px;height:24px;margin:0;background:var(--paper);border:3px solid var(--ink);border-radius:7px;cursor:pointer}
-input[type=checkbox]::before{content:"";width:10px;height:10px;border-radius:2px;background:var(--ink);transform:scale(0);transition:transform .12s}
-input[type=checkbox]:checked::before{transform:scale(1)}
+#sample {
+  margin-bottom: 24px;
+  text-align: center;
+  font-family: "Upload", var(--display);
+  font-size: clamp(34px, 6.5vw, 68px);
+  line-height: 1.1;
+  outline: 0;
+  word-break: break-word;
+}
 
-.row{display:grid;grid-template-columns:24px 1fr auto;gap:14px;align-items:center;margin-top:10px;padding:8px 12px;background:var(--mint);border:3px solid var(--ink);border-radius:10px}
-.row.off{background:var(--paper)}
-.row .nm{font-family:"Upload",var(--ui);font-size:26px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .2s}
-.row.off .nm{opacity:.4}
-.row .x{background:none;border:0;color:var(--ink);cursor:pointer;font-size:22px;font-weight:700;line-height:1;padding:2px 6px}
-.export{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:22px}
-.export label{display:flex;gap:8px;align-items:center;font-size:15px;font-weight:650}
-.export .btn{margin-left:auto}
+.cols {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 740px) { .cols { grid-template-columns: 1fr; } }
 
-footer{margin-top:112px;background:var(--ink);color:var(--bg)}
-footer .in{max-width:900px;margin:0 auto;padding:56px 24px 64px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:40px}
-@media (max-width:820px){footer .in{grid-template-columns:1fr;gap:24px}}
-footer h2{background:var(--yellow);color:var(--ink);margin:0;align-self:start;justify-self:start}
-footer ol{list-style:none;counter-reset:n;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:28px 40px;font-size:15px}
-@media (max-width:560px){footer ol{grid-template-columns:1fr}}
-footer li{counter-increment:n}
-footer li::before{content:counter(n,decimal-leading-zero);display:block;margin-bottom:4px;font-size:22px;font-weight:800;color:var(--yellow)}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.logo i{font-weight:700;font-stretch:100%}}
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+h2 {
+  display: inline-block;
+  margin: 0;
+  padding: 3px 9px;
+  background: var(--ink);
+  color: var(--bg);
+  font: 700 11px/1.2 var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.axis { padding: 10px 0 6px; }
+.axis + .axis { border-top: 1.5px solid #eee; }
+.axis .top { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.axis .top small { margin-left: 6px; font: 400 11px/1 var(--mono); color: var(--muted); }
+.axis input[type=number] {
+  width: 76px;
+  font: 700 12px/1 var(--mono);
+  text-align: right;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 4px 6px;
+}
+input[type=range] {
+  display: block;
+  width: 100%;
+  margin: 4px 0 0;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+
+.save { display: flex; gap: 8px; margin-top: 16px; }
+.save input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 14px;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 7px 10px;
+}
+
+.btn {
+  font: 700 14px/1 var(--sans);
+  color: var(--ink);
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.btn:hover:not(:disabled) { background: var(--yellow); }
+.btn:active:not(:disabled) { transform: translate(3px, 3px); box-shadow: none; }
+.btn.sub {
+  border: 0;
+  box-shadow: none;
+  padding: 2px 6px;
+  font: 700 11px/1 var(--mono);
+  color: var(--muted);
+  background: none;
+}
+.btn.sub:hover { color: var(--ink); background: none; text-decoration: underline; }
+.btn.main {
+  background: var(--green);
+  font-size: 16px;
+  padding: 10px 22px;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.btn.main:hover:not(:disabled) { background: #6ad379; }
+.btn:disabled { opacity: 0.4; box-shadow: none; cursor: not-allowed; }
+
+input[type=checkbox] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  display: grid;
+  place-content: center;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  cursor: pointer;
+}
+input[type=checkbox]::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: var(--ink);
+  transform: scale(0);
+  transition: transform 0.1s;
+}
+input[type=checkbox]:checked::before { transform: scale(1); }
+
+#list { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; padding-right: 2px; }
+.hint { margin: 0; padding: 16px 0; text-align: center; font-size: 14px; color: var(--muted); }
+.row {
+  display: grid;
+  grid-template-columns: 20px 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 7px 10px;
+  background: var(--mint);
+  border: 2px solid var(--ink);
+  cursor: pointer;
+}
+.row.off { background: var(--paper); }
+.row.off .nm, .row.off .coords { opacity: 0.4; }
+.row .nm {
+  font-family: "Upload", var(--display);
+  font-size: 21px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.row .coords { font: 400 11px/1 var(--mono); color: var(--muted); }
+.row .x {
+  background: none;
+  border: 0;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 4px;
+}
+
+.lic-box {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--yellow);
+  border: 2px solid var(--ink);
+  font-size: 13px;
+}
+.lic-meta { font-size: 12px; margin-bottom: 8px; overflow-wrap: anywhere; }
+.lic-meta a { color: var(--ink); font-weight: 700; }
+.warn {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.agree { display: flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+.export {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 18px;
+}
+.formats { display: flex; gap: 14px; align-items: center; }
+.formats label { display: flex; gap: 7px; align-items: center; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+footer {
+  background: var(--ink);
+  color: var(--bg);
+  border-top: 2.5px solid var(--ink);
+}
+footer .in {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 28px 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  text-align: center;
+  font-size: 13px;
+}
+@media (max-width: 640px) { footer .in { grid-template-columns: 1fr; gap: 14px; } }
+footer b { display: block; color: var(--yellow); font: 700 11px/1 var(--mono); text-transform: uppercase; margin-bottom: 4px; }
+
+:focus-visible { outline: 2.5px solid var(--ink); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .logo i { animation: none !important; font-weight: 700; font-stretch: 100%; }
+}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header><div class="logo" id="logo" role="img" aria-label="Freezing Variables"><span class="sizer" aria-hidden="true">Freezing Variables</span><span class="live" id="logotext" aria-hidden="true"></span></div></header>
-<h1>Turn a variable font into <em>static</em> fonts.</h1>
-<p class="lede">Upload an open source variable font and get a static file for each style. It all happens in your browser.</p>
+  <header>
+    <div class="logo" id="logo" role="img" aria-label="Freezing Variables"></div>
+  </header>
 
-<label class="drop wait" id="drop">
-  <input type="file" id="file" name="font" accept=".ttf,.otf,.woff,.woff2" disabled>
-  <b>Choose a font file, or drop it here</b>
-  <span>TTF, OTF, WOFF or WOFF2</span>
-</label>
-<p id="msg" role="status">Preparing the converter…</p>
+  <main id="home">
+    <h1>Turn a variable font into <em>static</em> fonts.</h1>
+    <p class="lede">Drop an open-source variable font to export static styles right in your browser.</p>
 
-<section id="work">
-  <div class="meta"><b id="family"></b><button class="btn" id="reset" type="button">Change font</button></div>
-  <div class="panel" id="sample" contenteditable="true" role="textbox" spellcheck="false" aria-label="Type to preview">Sphinx of black quartz, judge my vow</div>
-  <section class="panel license" aria-labelledby="lh">
-    <h2 id="lh">License</h2>
-    <dl id="lic"></dl><div id="licwarn"></div>
-    <label class="agree"><input type="checkbox" id="agree" name="agree"><span>I’ve checked that the license allows this.</span></label>
-  </section>
-  <div class="cols">
-    <div class="panel">
-      <h2>Axes</h2>
-      <div id="axes"></div>
-      <div class="save"><input id="newname" name="style-name" autocomplete="off" placeholder="Style name" aria-label="Style name"><button class="btn" id="add" type="button">Save</button></div>
+    <label class="drop" id="drop">
+      <input type="file" id="file" name="font" accept=".ttf,.otf,.woff,.woff2">
+      <b>Choose a font file, or drop it here</b>
+      <span>TTF · OTF · WOFF · WOFF2</span>
+    </label>
+    <p id="msg" role="status"></p>
+  </main>
+
+  <section id="work">
+    <div class="topbar">
+      <b id="family"></b>
+      <button class="btn" id="reset" type="button">Change font</button>
     </div>
-    <div class="panel">
-      <h2>Styles</h2>
-      <div id="list"></div>
-      <div class="export">
-        <label><input type="checkbox" id="fNative" name="fmt-native" checked><span id="nativeExt">TTF</span></label>
-        <label><input type="checkbox" id="fW2" name="fmt-woff2">WOFF2</label>
-        <button class="btn main" id="go" type="button" disabled>Export</button>
+
+    <div class="panel" id="sample" contenteditable="true" role="textbox" spellcheck="false" aria-label="Type to preview">Sphinx of black quartz, judge my vow</div>
+
+    <div class="cols">
+      <div class="panel">
+        <div class="head">
+          <h2>Axes</h2>
+          <button class="btn sub" id="resetAxes" type="button">Reset</button>
+        </div>
+        <div id="axes"></div>
+        <div class="save">
+          <input id="newname" name="style-name" autocomplete="off" placeholder="Style name" aria-label="Style name">
+          <button class="btn" id="add" type="button">Save</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="head">
+          <h2>Styles</h2>
+          <div>
+            <button class="btn sub" id="selAll" type="button">All</button>
+            <button class="btn sub" id="selNone" type="button">None</button>
+          </div>
+        </div>
+        <div id="list"></div>
+
+        <div class="lic-box">
+          <div class="lic-meta" id="lic"></div>
+          <div id="licwarn"></div>
+          <label class="agree">
+            <input type="checkbox" id="agree">
+            <span>I’ve checked that the license allows this.</span>
+          </label>
+        </div>
+
+        <div class="export">
+          <div class="formats">
+            <label><input type="checkbox" id="fNative" checked><span id="nativeExt">TTF</span></label>
+            <label><input type="checkbox" id="fW2">WOFF2</label>
+          </div>
+          <button class="btn main" id="go" type="button" disabled>Export</button>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 </div>
 
 <footer>
   <div class="in">
-    <h2>Before you convert</h2>
-    <ol>
-      <li>Converting makes a modified copy. Open licenses like the OFL usually allow it; many commercial ones don’t.</li>
-      <li>With a Reserved Font Name, rename the exports before sharing.</li>
-      <li>Keep the copyright and license notices in the files.</li>
-      <li>Check the license covers your use: web, app, print or redistribution.</li>
-    </ol>
+    <div><b>100% Local</b>Files stay in your browser and never touch a server.</div>
+    <div><b>Open Licenses</b>Only convert fonts that allow modification (like OFL).</div>
+    <div><b>Font Names</b>Rename exports before sharing if a Reserved Name applies.</div>
   </div>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 <script>
-const $=id=>document.getElementById(id);
-const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const $ = id => document.getElementById(id);
 
-/* logo: a wave of weight and width runs through the letters */
-[...'Freezing Variables'].forEach((ch,n)=>{const i=document.createElement('i');i.textContent=ch;i.style.setProperty('--i',n);$('logotext').appendChild(i)});
+/* Logo container naturally expands & contracts with the wave */
+[...'Freezing Variables'].forEach((ch, n) => {
+  const i = document.createElement('i');
+  i.textContent = ch;
+  i.style.setProperty('--i', n);
+  $('logo').appendChild(i);
+});
 
-const PY=`
-import io, json, logging
+const PY = `
+import io, json, copy, logging
 logging.getLogger("fontTools").setLevel(logging.ERROR)
 from fontTools.ttLib import TTFont
 from fontTools.varLib import instancer
 
-def _load():
-    with open('/tmp/in.font','rb') as fh:
-        return TTFont(io.BytesIO(fh.read()))
+FONT = None
 
-def inspect():
-    f=_load()
-    if 'fvar' not in f:
-        return json.dumps({"error":"This font has no variation axes."})
-    n=f['name']
-    axes=[{"tag":a.axisTag,"name":n.getDebugName(a.axisNameID) or a.axisTag,"min":a.minValue,"def":a.defaultValue,"max":a.maxValue} for a in f['fvar'].axes]
-    inst=[{"name":n.getDebugName(i.subfamilyNameID) or "Style","coords":dict(i.coordinates)} for i in f['fvar'].instances]
-    fam=n.getDebugName(16) or n.getDebugName(1) or "Untitled font"
-    return json.dumps({"family":fam,"axes":axes,"instances":inst,"ext":"otf" if 'CFF2' in f else "ttf","copyright":n.getDebugName(0) or "","license":n.getDebugName(13) or "","licenseUrl":n.getDebugName(14) or ""})
+def inspect(raw_bytes):
+    global FONT
+    FONT = TTFont(io.BytesIO(bytes(raw_bytes)))
+    if 'fvar' not in FONT:
+        return json.dumps({"error": "This font has no variation axes."})
+    n = FONT['name']
+    axes = [{"tag": a.axisTag, "name": n.getDebugName(a.axisNameID) or a.axisTag, "min": a.minValue, "def": a.defaultValue, "max": a.maxValue} for a in FONT['fvar'].axes]
+    inst = [{"name": n.getDebugName(i.subfamilyNameID) or "Style", "coords": dict(i.coordinates)} for i in FONT['fvar'].instances]
+    fam = n.getDebugName(16) or n.getDebugName(1) or "Untitled font"
+    return json.dumps({
+        "family": fam,
+        "axes": axes,
+        "instances": inst,
+        "ext": "otf" if 'CFF2' in FONT else "ttf",
+        "copyright": n.getDebugName(0) or "",
+        "license": n.getDebugName(13) or "",
+        "licenseUrl": n.getDebugName(14) or ""
+    })
 
-def build(coords, fmt):
-    c=json.loads(coords)
+def build(coords_json, fmt):
+    c = json.loads(coords_json)
+    f = copy.deepcopy(FONT)
     try:
-        s=instancer.instantiateVariableFont(_load(),c,inplace=False,updateFontNames=True)
+        s = instancer.instantiateVariableFont(f, c, inplace=False, updateFontNames=True)
     except Exception:
-        s=instancer.instantiateVariableFont(_load(),c,inplace=False)
-    s.flavor='woff2' if fmt=='woff2' else None
-    s.save('/tmp/out.font')
+        s = instancer.instantiateVariableFont(f, c, inplace=False)
+    s.flavor = 'woff2' if fmt == 'woff2' else None
+    buf = io.BytesIO()
+    s.save(buf)
+    return buf.getvalue()
 `;
-let srcName='',py=null,bytes=null,info=null,insts=[],cur={},faceURL=null,faceStyle=null;
 
-const msg=(t,err)=>{$('msg').textContent=t||'';$('msg').className=err?'err':''};
-const fvs=c=>Object.entries(c).map(([k,v])=>`"${k}" ${v}`).join(',');
-const num=v=>Number.isInteger(v)?v:+v.toFixed(2);
-const noop=()=>{};
-/* "Family 96pt ExtraBold" -> "Family" */
-const cleanFam=s=>{const c=s.replace(/\s+(\d+pt\s+)?(Thin|Hairline|ExtraLight|UltraLight|Light|Regular|Book|Medium|SemiBold|DemiBold|Bold|ExtraBold|UltraBold|Black|Heavy|Italic|Oblique)(\s.*)?$/i,'').replace(/\s+\d+pt$/i,'').trim();return c||s};
+let srcName = '', py = null, pyPromise = null, bytes = null, info = null, insts = [], cur = {}, faceURL = null, faceStyle = null;
 
-addEventListener('unhandledrejection',e=>{e.preventDefault();msg('Something went wrong. Reload and try again.',true)});
-['dragover','drop'].forEach(t=>addEventListener(t,e=>e.preventDefault()));
+const msg = (t, err) => { $('msg').textContent = t || ''; $('msg').className = err ? 'err' : ''; };
+const fvs = c => Object.entries(c).map(([k, v]) => `"${k}" ${v}`).join(',');
+const num = v => Number.isInteger(v) ? v : +v.toFixed(2);
+const noop = () => {};
+const cleanFam = s => s.replace(/\s+(\d+pt\s+)?(Thin|Hairline|ExtraLight|UltraLight|Light|Regular|Book|Medium|SemiBold|DemiBold|Bold|ExtraBold|UltraBold|Black|Heavy|Italic|Oblique)(\s.*)?$/i, '').replace(/\s+\d+pt$/i, '').trim() || s;
 
-(async()=>{
-  const fv=window.__fv;
-  try{
-    if(typeof WebAssembly!=='object')throw new Error('This browser has no WebAssembly, which the converter needs.');
-    try{await WebAssembly.compile(new Uint8Array([0,97,115,109,1,0,0,0]))}
-    catch(e){throw new Error('This browser or preview blocks WebAssembly, which the converter needs. Open the page in a normal tab.')}
-    await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.js';s.onload=res;s.onerror=()=>rej(new Error('Could not download the converter. Reload to retry.'));document.head.appendChild(s)});
-    let timer;
-    const stall=new Promise((_,rej)=>{timer=setTimeout(()=>rej(new Error('The converter did not start. Try a current Chrome, Edge or Firefox.')),90000)});
-    py=await Promise.race([loadPyodide({stdout:noop,stderr:noop}),stall]);
-    clearTimeout(timer);
-    await py.loadPackage('micropip',{messageCallback:noop,errorCallback:noop});
-    await py.runPythonAsync("import micropip\nawait micropip.install(['fonttools','brotli'])");
+['dragover', 'drop'].forEach(t => addEventListener(t, e => e.preventDefault()));
+
+function initPyodide() {
+  if (pyPromise) return pyPromise;
+  pyPromise = (async () => {
+    if (typeof WebAssembly !== 'object') throw new Error('WebAssembly is required.');
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.js';
+      s.onload = res;
+      s.onerror = () => rej(new Error('Could not download converter.'));
+      document.head.appendChild(s);
+    });
+    py = await loadPyodide({ stdout: noop, stderr: noop });
+    await py.loadPackage('micropip', { messageCallback: noop, errorCallback: noop });
+    await py.runPythonAsync("import micropip\nawait micropip.install(['fonttools', 'brotli'])");
     await py.runPythonAsync(PY);
-    fv.quiet=false;fv.held.length=0;
-    $('file').disabled=false;$('drop').classList.remove('wait');msg('');
-  }catch(e){
-    fv.quiet=false;
-    const d=(fv.held.find(x=>/wasm|instantiat|abort/i.test(x))||'').slice(0,140);
-    msg(((e&&e.message)||'The converter failed to start.')+(d?' ('+d+')':''),true);
+    return py;
+  })();
+  return pyPromise;
+}
+
+if ('requestIdleCallback' in window) requestIdleCallback(() => initPyodide().catch(noop));
+else setTimeout(() => initPyodide().catch(noop), 800);
+
+const drop = $('drop');
+['dragover', 'dragenter'].forEach(t => drop.addEventListener(t, () => drop.classList.add('over')));
+['dragleave', 'drop'].forEach(t => drop.addEventListener(t, () => drop.classList.remove('over')));
+drop.addEventListener('drop', e => { const f = e.dataTransfer?.files[0]; if (f) take(f); });
+$('file').addEventListener('change', e => { if (e.target.files[0]) take(e.target.files[0]); });
+
+$('reset').onclick = () => {
+  $('work').classList.remove('on');
+  $('home').style.display = '';
+  $('file').value = '';
+  msg('');
+};
+
+async function take(file) {
+  drop.classList.add('wait');
+  try {
+    if (!py) {
+      msg('Starting converter…');
+      await initPyodide();
+    }
+    msg('Reading font…');
+    srcName = file.name;
+    bytes = new Uint8Array(await file.arrayBuffer());
+    info = JSON.parse(py.globals.get('inspect')(bytes));
+  } catch (e) {
+    msg(e?.message || 'That file could not be read as a font.', true);
+    drop.classList.remove('wait');
+    return;
   }
-})();
-
-const drop=$('drop');
-['dragover','dragenter'].forEach(t=>drop.addEventListener(t,()=>{if(py)drop.classList.add('over')}));
-['dragleave','drop'].forEach(t=>drop.addEventListener(t,()=>drop.classList.remove('over')));
-drop.addEventListener('drop',e=>{const f=e.dataTransfer&&e.dataTransfer.files[0];if(py&&f)take(f)});
-$('file').addEventListener('change',e=>{if(e.target.files[0])take(e.target.files[0])});
-$('reset').onclick=()=>{$('work').classList.remove('on');drop.style.display='block';$('file').value='';msg('')};
-
-async function take(file){
-  msg('Reading font…');
-  try{
-    srcName=file.name;bytes=new Uint8Array(await file.arrayBuffer());
-    py.FS.writeFile('/tmp/in.font',bytes);
-    info=JSON.parse(py.globals.get('inspect')());
-  }catch(e){msg('That file could not be read as a font.',true);return}
-  if(info.error){msg(info.error,true);return}
-  info.family=cleanFam(info.family);
+  drop.classList.remove('wait');
+  if (info.error) { msg(info.error, true); return; }
+  info.family = cleanFam(info.family);
   msg('');
   show();
 }
 
-function show(){
-  if(faceURL)URL.revokeObjectURL(faceURL);
-  if(faceStyle)faceStyle.remove();
-  faceURL=URL.createObjectURL(new Blob([bytes]));
-  faceStyle=document.createElement('style');
-  faceStyle.textContent=`@font-face{font-family:"Upload";src:url(${faceURL})}`;
+function show() {
+  if (faceURL) URL.revokeObjectURL(faceURL);
+  if (faceStyle) faceStyle.remove();
+  faceURL = URL.createObjectURL(new Blob([bytes]));
+  faceStyle = document.createElement('style');
+  faceStyle.textContent = `@font-face{font-family:"Upload";src:url(${faceURL})}`;
   document.head.appendChild(faceStyle);
-  $('family').textContent=info.family;
-  $('nativeExt').textContent=info.ext.toUpperCase();
-  cur={};info.axes.forEach(a=>cur[a.tag]=a.def);
-  insts=info.instances.map(i=>({name:i.name,coords:{...cur,...i.coords},on:true}));
-  renderLicense();drawAxes();drawList();
-  drop.style.display='none';$('work').classList.add('on');sweep();
+
+  $('family').textContent = info.family;
+  $('nativeExt').textContent = info.ext.toUpperCase();
+  cur = {};
+  info.axes.forEach(a => cur[a.tag] = a.def);
+  insts = info.instances.map(i => ({ name: i.name, coords: { ...cur, ...i.coords }, on: true }));
+
+  renderLicense();
+  drawAxes();
+  drawList();
+  $('home').style.display = 'none';
+  $('work').classList.add('on');
 }
 
-function setCur(tag,v){cur[tag]=v;$('sample').style.fontVariationSettings=fvs(cur)}
-function drawAxes(){
-  const box=$('axes');box.textContent='';
-  info.axes.forEach(a=>{
-    const step=(a.max-a.min)>20?1:0.01;
-    const d=document.createElement('div');d.className='axis';
-    const top=document.createElement('div');top.className='top';
-    const lab=document.createElement('span');lab.textContent=a.name;
-    const sm=document.createElement('small');sm.textContent=a.tag;lab.appendChild(sm);
-    const n=document.createElement('input');
-    Object.assign(n,{type:'number',name:a.tag+'-value',autocomplete:'off',min:a.min,max:a.max,step,value:num(cur[a.tag])});
-    n.setAttribute('aria-label',a.name+' value');
-    const r=document.createElement('input');
-    Object.assign(r,{type:'range',name:a.tag+'-range',min:a.min,max:a.max,step,value:cur[a.tag]});
-    r.setAttribute('aria-label',a.name);
-    r.oninput=()=>{n.value=num(+r.value);setCur(a.tag,+r.value)};
-    n.onchange=()=>{const v=Math.min(a.max,Math.max(a.min,+n.value||a.def));n.value=num(v);r.value=v;setCur(a.tag,v)};
-    top.append(lab,n);d.append(top,r);box.appendChild(d);
+function setCur(tag, v) {
+  cur[tag] = v;
+  $('sample').style.fontVariationSettings = fvs(cur);
+}
+
+function drawAxes() {
+  const box = $('axes');
+  box.textContent = '';
+  info.axes.forEach(a => {
+    const step = (a.max - a.min) > 20 ? 1 : 0.01;
+    const d = document.createElement('div'); d.className = 'axis';
+    const top = document.createElement('div'); top.className = 'top';
+    const lab = document.createElement('span'); lab.textContent = a.name;
+    const sm = document.createElement('small'); sm.textContent = a.tag; lab.appendChild(sm);
+
+    const n = document.createElement('input');
+    Object.assign(n, { type: 'number', min: a.min, max: a.max, step, value: num(cur[a.tag]) });
+
+    const r = document.createElement('input');
+    Object.assign(r, { type: 'range', min: a.min, max: a.max, step, value: cur[a.tag] });
+
+    r.oninput = () => { n.value = num(+r.value); setCur(a.tag, +r.value); };
+    n.onchange = () => {
+      const v = Math.min(a.max, Math.max(a.min, +n.value || a.def));
+      n.value = num(v); r.value = v; setCur(a.tag, v);
+    };
+    top.append(lab, n); d.append(top, r); box.appendChild(d);
   });
-  $('sample').style.fontVariationSettings=fvs(cur);
+  $('sample').style.fontVariationSettings = fvs(cur);
 }
 
-function drawList(){
-  const L=$('list');L.textContent='';
-  if(!insts.length){const p=document.createElement('p');p.className='hint';p.textContent='No named styles. Set the axes and save one.';L.appendChild(p)}
-  insts.forEach((it,i)=>{
-    const r=document.createElement('div');r.className='row'+(it.on?'':' off');
-    r.title=Object.entries(it.coords).map(([k,v])=>`${k} ${num(v)}`).join(', ');
-    const cb=document.createElement('input');cb.type='checkbox';cb.name='export-'+i;cb.checked=it.on;cb.setAttribute('aria-label','Export '+it.name);
-    const nm=document.createElement('div');nm.className='nm';nm.textContent=it.name;nm.style.fontVariationSettings=fvs(it.coords);
-    const x=document.createElement('button');x.type='button';x.className='x';x.textContent='×';x.title='Remove';x.setAttribute('aria-label','Remove '+it.name);
-    cb.onchange=()=>{it.on=cb.checked;r.classList.toggle('off',!it.on);sync()};
-    x.onclick=()=>{insts.splice(i,1);drawList()};
-    r.append(cb,nm,x);L.appendChild(r);
+$('resetAxes').onclick = () => {
+  if (!info) return;
+  info.axes.forEach(a => cur[a.tag] = a.def);
+  drawAxes();
+};
+
+function drawList() {
+  const L = $('list');
+  L.textContent = '';
+  if (!insts.length) {
+    const p = document.createElement('p');
+    p.className = 'hint';
+    p.textContent = 'No named styles. Set the axes and save one.';
+    L.appendChild(p);
+  }
+  insts.forEach((it, i) => {
+    const r = document.createElement('div');
+    r.className = 'row' + (it.on ? '' : ' off');
+    const coordStr = Object.entries(it.coords).map(([k, v]) => `${k} ${num(v)}`).join(', ');
+
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = it.on;
+
+    const nm = document.createElement('div');
+    nm.className = 'nm';
+    nm.textContent = it.name;
+    nm.style.fontVariationSettings = fvs(it.coords);
+
+    const coords = document.createElement('span');
+    coords.className = 'coords';
+    coords.textContent = coordStr;
+
+    const x = document.createElement('button');
+    x.type = 'button'; x.className = 'x'; x.textContent = '×';
+
+    cb.onclick = e => e.stopPropagation();
+    cb.onchange = () => { it.on = cb.checked; r.classList.toggle('off', !it.on); sync(); };
+    x.onclick = e => { e.stopPropagation(); insts.splice(i, 1); drawList(); };
+    r.onclick = () => { cur = { ...it.coords }; drawAxes(); };
+
+    r.append(cb, nm, coords, x);
+    L.appendChild(r);
   });
   sync();
 }
-const sync=()=>{$('go').disabled=!(insts.some(i=>i.on)&&$('agree').checked)};
-$('agree').onchange=sync;
 
-function renderLicense(){
-  $('agree').checked=false;
-  const dl=$('lic');dl.textContent='';
-  const add=(k,v,link)=>{if(!v)return;const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=k;
-    if(link&&/^https?:\/\//i.test(v)){const a=document.createElement('a');a.href=v;a.textContent=v;a.target='_blank';a.rel='noopener';dd.appendChild(a)}
-    else dd.textContent=v.length>160?v.slice(0,160)+'…':v;
-    dl.append(dt,dd)};
-  add('Copyright',info.copyright);add('License',info.license);add('Link',info.licenseUrl,true);
-  const w=$('licwarn');w.textContent='';
-  const warn=t=>{const p=document.createElement('p');p.className='warn';p.textContent=t;w.appendChild(p)};
-  const all=info.copyright+' '+info.license;
-  if(!info.copyright&&!info.license&&!info.licenseUrl)warn('No license information in this font. Check its source before exporting.');
-  else if(!/open font license|\bOFL\b|apache|\bMIT\b|public domain|ubuntu font/i.test(all+' '+info.licenseUrl))warn('This doesn’t look like an open license. Commercial licenses often forbid modifying fonts.');
-  if(/reserved font name/i.test(all))warn('Reserved Font Name declared. Rename modified versions before sharing.');
-}
-const readme=ch=>`Static fonts from "${info.family}" (${srcName}), made with Freezing Variables.\n\nStyles: ${ch.map(i=>i.name).join(', ')}\n\nCopyright: ${info.copyright||'not stated'}\nLicense: ${info.license||'not stated'}\nLink: ${info.licenseUrl||'not stated'}\n\nThese are modified copies. Follow the original license when you use or share them.\n`;
-
-$('add').onclick=()=>{
-  const name=$('newname').value.trim()||Object.entries(cur).map(([k,v])=>k+num(v)).join('-');
-  insts.push({name,coords:{...cur},on:true});$('newname').value='';drawList();
+const sync = () => {
+  const count = insts.filter(i => i.on).length;
+  const hasFmt = $('fNative').checked || $('fW2').checked;
+  $('go').textContent = count ? `Export (${count})` : 'Export';
+  $('go').disabled = !(count && hasFmt && $('agree').checked);
 };
 
-/* the preview glides through every axis once, then settles */
-function sweep(){
-  if(still)return;
-  const el=$('sample'),t0=performance.now();
-  (function f(now){
-    const p=Math.min(1,(now-t0)/1400),k=Math.sin(p*Math.PI*2),c={};
-    info.axes.forEach(a=>{c[a.tag]=a.def+(k>0?a.max-a.def:a.def-a.min)*k});
-    el.style.fontVariationSettings=fvs(p<1?c:cur);
-    if(p<1)requestAnimationFrame(f);
-  })(t0);
+$('agree').onchange = sync;
+$('fNative').onchange = sync;
+$('fW2').onchange = sync;
+$('selAll').onclick = () => { insts.forEach(i => i.on = true); drawList(); };
+$('selNone').onclick = () => { insts.forEach(i => i.on = false); drawList(); };
+
+function renderLicense() {
+  $('agree').checked = false;
+  const lic = $('lic'); lic.textContent = '';
+  const parts = [info.license, info.copyright].filter(Boolean).join(' · ');
+  lic.textContent = parts ? (parts.length > 140 ? parts.slice(0, 140) + '…' : parts) : 'No license metadata in this font.';
+  if (info.licenseUrl && /^https?:\/\//i.test(info.licenseUrl)) {
+    const a = document.createElement('a');
+    a.href = info.licenseUrl; a.textContent = ' License link ↗'; a.target = '_blank'; a.rel = 'noopener';
+    lic.appendChild(a);
+  }
+
+  const w = $('licwarn'); w.textContent = '';
+  const warn = t => { const d = document.createElement('div'); d.className = 'warn'; d.textContent = t; w.appendChild(d); };
+  const all = info.copyright + ' ' + info.license + ' ' + info.licenseUrl;
+  if (parts && !/open font license|\bOFL\b|apache|\bMIT\b|public domain|ubuntu font/i.test(all)) {
+    warn('Doesn’t look like an open license. Commercial fonts usually forbid modification.');
+  }
+  if (/reserved font name/i.test(all)) {
+    warn('Reserved Font Name declared. Rename files before sharing.');
+  }
 }
 
-$('go').onclick=async()=>{
-  const chosen=insts.filter(i=>i.on),fmts=[];
-  if($('fNative').checked)fmts.push(info.ext);
-  if($('fW2').checked)fmts.push('woff2');
-  if(!fmts.length){msg('Choose a file format.',true);return}
-  $('go').disabled=true;
-  const out=[],total=chosen.length*fmts.length;
-  try{
-    py.FS.writeFile('/tmp/in.font',bytes);
-    const build=py.globals.get('build');
-    for(const it of chosen)for(const f of fmts){
-      msg(`Creating ${out.length+1} of ${total}: ${it.name}`);
-      await new Promise(r=>setTimeout(r,20));
-      build(JSON.stringify(it.coords),f);
-      out.push({name:(info.family+'-'+it.name).replace(/[^\w.-]+/g,'')+'.'+f,data:py.FS.readFile('/tmp/out.font').slice()});
+const readme = ch => `Static fonts from "${info.family}" (${srcName}), made with Freezing Variables.\n\nStyles: ${ch.map(i => i.name).join(', ')}\nCopyright: ${info.copyright || 'not stated'}\nLicense: ${info.license || 'not stated'}\nLink: ${info.licenseUrl || 'not stated'}\n`;
+
+$('add').onclick = () => {
+  const name = $('newname').value.trim() || Object.entries(cur).map(([k, v]) => k + num(v)).join('-');
+  insts.push({ name, coords: { ...cur }, on: true });
+  $('newname').value = '';
+  drawList();
+};
+
+$('go').onclick = async () => {
+  const chosen = insts.filter(i => i.on), fmts = [];
+  if ($('fNative').checked) fmts.push(info.ext);
+  if ($('fW2').checked) fmts.push('woff2');
+  if (!fmts.length) return;
+
+  $('go').disabled = true;
+  const out = [], total = chosen.length * fmts.length;
+  try {
+    const build = py.globals.get('build');
+    for (const it of chosen) {
+      for (const f of fmts) {
+        $('go').textContent = `${out.length + 1}/${total}…`;
+        await new Promise(r => setTimeout(r, 15));
+        const proxy = build(JSON.stringify(it.coords), f);
+        const data = proxy.toJs({ create_proxies: false });
+        proxy.destroy();
+        out.push({
+          name: (info.family + '-' + it.name).replace(/[^\w.-]+/g, '') + '.' + f,
+          data
+        });
+      }
     }
-    let blob,name;
-    if(out.length===1){blob=new Blob([out[0].data]);name=out[0].name}
-    else{
-      if(typeof JSZip==='undefined')throw new Error('The zip library did not load. Reload the page.');
-      const z=new JSZip();out.forEach(o=>z.file(o.name,o.data));z.file('README.txt',readme(chosen));
-      blob=await z.generateAsync({type:'blob'});name=info.family.replace(/\W+/g,'')+'-static.zip';
+    let blob, name;
+    if (out.length === 1) {
+      blob = new Blob([out[0].data]);
+      name = out[0].name;
+    } else {
+      const z = new JSZip();
+      out.forEach(o => z.file(o.name, o.data));
+      z.file('README.txt', readme(chosen));
+      blob = await z.generateAsync({ type: 'blob' });
+      name = info.family.replace(/\W+/g, '') + '-static.zip';
     }
-    const url=URL.createObjectURL(blob),a=document.createElement('a');
-    a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),10000);
-    msg(`Downloaded ${out.length} file${out.length>1?'s':''}.`);
-  }catch(e){msg('Export failed: '+((e&&e.message)||e),true)}
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  } catch (e) {
+    msg('Export failed: ' + (e?.message || e), true);
+  }
   sync();
 };
 </script>
