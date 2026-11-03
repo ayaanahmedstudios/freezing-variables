@@ -24,7 +24,7 @@ body { display: flex; flex-direction: column; }
   50% { font-variation-settings: "wght" 800, "wdth" 100; }
 }
 
-header { padding: 40px 0 16px; text-align: center; }
+header { padding: 40px 0 16px; text-align: center; contain: layout paint; }
 .logo {
   display: inline-block;
   padding: 7px 16px;
@@ -40,7 +40,6 @@ header { padding: 40px 0 16px; text-align: center; }
   display: inline-block;
   white-space: pre;
   font-variation-settings: "wght" 250, "wdth" 78;
-  will-change: font-variation-settings;
   animation: wave 3.6s ease-in-out infinite;
   animation-delay: calc(var(--i) * 105ms - 3.6s);
 }
