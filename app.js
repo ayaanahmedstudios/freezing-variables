@@ -48,38 +48,65 @@ def build(coords_json, fmt):
     return buf.getvalue()
 `;
 
-let srcName = '', py = null, pyPromise = null, bytes = null, info = null, insts = [], cur = {}, faceURL = null, faceStyle = null;
+function workerMain() {
+  let py = null;
+  onmessage = async ({ data: { id, type, a } }) => {
+    try {
+      if (type === 'init') {
+        importScripts('https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.js');
+        py = await loadPyodide({ stdout: () => {}, stderr: () => {} });
+        await py.loadPackage('micropip');
+        await py.runPythonAsync("import micropip\nawait micropip.install(['fonttools', 'brotli'])");
+        await py.runPythonAsync(a.py);
+        postMessage({ id, res: true });
+      } else if (type === 'inspect') {
+        postMessage({ id, res: py.globals.get('inspect')(a.bytes) });
+      } else if (type === 'build') {
+        const p = py.globals.get('build')(a.coords, a.fmt);
+        const data = p.toJs({ create_proxies: false });
+        p.destroy();
+        postMessage({ id, res: data }, [data.buffer]);
+      }
+    } catch (e) {
+      postMessage({ id, err: String((e && e.message) || e) });
+    }
+  };
+}
+
+/* Python runs in a background worker so the page (and the logo animation) never freezes */
+const worker = new Worker(URL.createObjectURL(new Blob([`(${workerMain})()`], { type: 'text/javascript' })));
+const pending = new Map();
+let seq = 0;
+worker.onmessage = ({ data }) => {
+  const p = pending.get(data.id);
+  if (!p) return;
+  pending.delete(data.id);
+  data.err !== undefined ? p.rej(new Error(data.err)) : p.res(data.res);
+};
+worker.onerror = e => {
+  pending.forEach(p => p.rej(new Error(e.message || 'Converter crashed.')));
+  pending.clear();
+};
+const call = (type, a, tr) => new Promise((res, rej) => {
+  const id = ++seq;
+  pending.set(id, { res, rej });
+  worker.postMessage({ id, type, a }, tr || []);
+});
+let readyP = null;
+const ready = () => readyP || (readyP = call('init', { py: PY }).catch(e => {
+  readyP = null;
+  throw new Error('Could not start the converter. ' + e.message);
+}));
+ready().catch(() => {});
+
+let srcName = '', bytes = null, info = null, insts = [], cur = {}, faceURL = null, faceStyle = null;
 
 const msg = (t, err) => { $('msg').textContent = t || ''; $('msg').className = err ? 'err' : ''; };
 const fvs = c => Object.entries(c).map(([k, v]) => `"${k}" ${v}`).join(',');
 const num = v => Number.isInteger(v) ? v : +v.toFixed(2);
-const noop = () => {};
 const cleanFam = s => s.replace(/\s+(\d+pt\s+)?(Thin|Hairline|ExtraLight|UltraLight|Light|Regular|Book|Medium|SemiBold|DemiBold|Bold|ExtraBold|UltraBold|Black|Heavy|Italic|Oblique)(\s.*)?$/i, '').replace(/\s+\d+pt$/i, '').trim() || s;
 
 ['dragover', 'drop'].forEach(t => addEventListener(t, e => e.preventDefault()));
-
-function initPyodide() {
-  if (pyPromise) return pyPromise;
-  pyPromise = (async () => {
-    if (typeof WebAssembly !== 'object') throw new Error('WebAssembly is required.');
-    await new Promise((res, rej) => {
-      const s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.js';
-      s.onload = res;
-      s.onerror = () => rej(new Error('Could not download converter.'));
-      document.head.appendChild(s);
-    });
-    py = await loadPyodide({ stdout: noop, stderr: noop });
-    await py.loadPackage('micropip', { messageCallback: noop, errorCallback: noop });
-    await py.runPythonAsync("import micropip\nawait micropip.install(['fonttools', 'brotli'])");
-    await py.runPythonAsync(PY);
-    return py;
-  })();
-  return pyPromise;
-}
-
-if ('requestIdleCallback' in window) requestIdleCallback(() => initPyodide().catch(noop));
-else setTimeout(() => initPyodide().catch(noop), 800);
 
 const drop = $('drop');
 ['dragover', 'dragenter'].forEach(t => drop.addEventListener(t, () => drop.classList.add('over')));
@@ -97,14 +124,12 @@ $('reset').onclick = () => {
 async function take(file) {
   drop.classList.add('wait');
   try {
-    if (!py) {
-      msg('Starting converter…');
-      await initPyodide();
-    }
+    msg('Starting converter…');
+    await ready();
     msg('Reading font…');
     srcName = file.name;
     bytes = new Uint8Array(await file.arrayBuffer());
-    info = JSON.parse(py.globals.get('inspect')(bytes));
+    info = JSON.parse(await call('inspect', { bytes: bytes.slice() }));
   } catch (e) {
     msg(e?.message || 'That file could not be read as a font.', true);
     drop.classList.remove('wait');
@@ -269,14 +294,10 @@ $('go').onclick = async () => {
   $('go').disabled = true;
   const out = [], total = chosen.length * fmts.length;
   try {
-    const build = py.globals.get('build');
     for (const it of chosen) {
       for (const f of fmts) {
         $('go').textContent = `${out.length + 1}/${total}…`;
-        await new Promise(r => setTimeout(r, 15));
-        const proxy = build(JSON.stringify(it.coords), f);
-        const data = proxy.toJs({ create_proxies: false });
-        proxy.destroy();
+        const data = await call('build', { coords: JSON.stringify(it.coords), fmt: f });
         out.push({
           name: (info.family + '-' + it.name).replace(/[^\w.-]+/g, '') + '.' + f,
           data
